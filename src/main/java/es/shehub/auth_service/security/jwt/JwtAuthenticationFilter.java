@@ -20,6 +20,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
+/**
+ * Filter that intercepts incoming HTTP requests to validate
+ * JWT tokens (from Authorization header or cookies) and set
+ * the Spring Security context accordingly.
+ */
 @AllArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,6 +32,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
 
+    /**
+     * Extracts JWT token from the Authorization header or from cookies,
+     * validates it, and sets the authenticated user in the SecurityContext
+     * if valid.
+     * 
+     * @param request  the incoming HTTP request
+     * @param response the outgoing HTTP response
+     * @param filterChain the filter chain to proceed with the request
+     * @throws ServletException in case of servlet errors
+     * @throws IOException in case of I/O errors
+     */
     @Override
     protected void doFilterInternal(
         @NonNull HttpServletRequest request,
@@ -62,6 +78,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Attempts to retrieve the JWT token from the Authorization header
+     * (Bearer token) or from the "access_token" cookie.
+     * 
+     * @param request the HTTP request
+     * @return the JWT token if found, otherwise null
+     */
     private String getTokenFromRequest(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {

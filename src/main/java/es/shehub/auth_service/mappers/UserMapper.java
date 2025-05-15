@@ -7,10 +7,22 @@ import es.shehub.auth_service.models.dtos.UserCreatedDTO;
 import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
 import es.shehub.auth_service.models.entities.User;
 
+/**
+ * Mapper interface to convert between User entity and User DTOs
+ * using MapStruct.
+ */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    // From Register DTO to User entity
+    /**
+     * Maps a UserRegisterRequestDTO to a User entity.
+     * 
+     * Ignores fields that are generated or managed internally (id, createdAt, status, provider, role).
+     * Sets profileCompleted to false by default.
+     * 
+     * @param dto the user registration request DTO
+     * @return the User entity with mapped fields
+     */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "status", ignore = true)
@@ -19,7 +31,14 @@ public interface UserMapper {
     @Mapping(target = "role", ignore = true) 
     User toUser(UserRegisterRequestDTO dto);
 
-    // From User entity to UserCreatedDTO
+    /**
+     * Maps a User entity to a UserCreatedDTO.
+     * 
+     * Maps role.name from the entity to the role field in the DTO.
+     * 
+     * @param user the User entity
+     * @return the UserCreatedDTO with mapped fields
+     */
     @Mapping(source = "id", target = "id")
     @Mapping(source = "role.name", target = "role")
     UserCreatedDTO toUserCreatedDTO(User user);

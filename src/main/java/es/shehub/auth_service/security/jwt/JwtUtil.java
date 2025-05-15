@@ -23,7 +23,7 @@ public class JwtUtil {
     private String SECRET_KEY;
 
 
-    public String generateToken(User user) {
+    public String generateAccessToken(User user) {
         String roleName = "ROLE_" + user.getRole().getName().toUpperCase(); 
         return Jwts.builder()
         .setSubject(user.getEmail())

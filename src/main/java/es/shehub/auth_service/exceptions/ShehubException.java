@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import lombok.Getter;
 
 @Getter
-public class ShehubException extends Exception {
+public class ShehubException extends RuntimeException {
     private HttpStatus httpStatus;
 
     public ShehubException(String message) {

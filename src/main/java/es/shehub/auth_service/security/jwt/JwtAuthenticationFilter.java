@@ -28,7 +28,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    
+
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
 
@@ -37,39 +37,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * validates it, and sets the authenticated user in the SecurityContext
      * if valid.
      * 
-     * @param request  the incoming HTTP request
-     * @param response the outgoing HTTP response
+     * @param request     the incoming HTTP request
+     * @param response    the outgoing HTTP response
      * @param filterChain the filter chain to proceed with the request
      * @throws ServletException in case of servlet errors
-     * @throws IOException in case of I/O errors
+     * @throws IOException      in case of I/O errors
      */
     @Override
     protected void doFilterInternal(
-        @NonNull HttpServletRequest request,
-        @NonNull HttpServletResponse response,
-        @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
-        
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
+
         final String token = getTokenFromRequest(request);
 
         if (token != null && StringUtils.hasText(token)) {
             String username = jwtUtil.extractUsername(token);
-            
+
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-                
+
                 if (jwtUtil.validateToken(token, userDetails.getUsername())) {
-                    UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
-                            userDetails.getAuthorities()
-                        );
-                    
+                            userDetails.getAuthorities());
+
                     authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
@@ -100,5 +96,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return null;
+    }
+
+    /**
+     * Skips the JWT authentication filter for specified public endpoints.
+     * This prevents the filter from trying to authenticate requests to endpoints
+     * like login, register, refresh-token, and logout, which may not require
+     * a valid JWT to be processed correctly.
+     *
+     * @param request the incoming HTTP request
+     * @return true if the filter should be skipped for this request, false
+     *         otherwise
+     * @throws ServletException in case of servlet errors
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path.equals("/api/v1/auth/login")
+                || path.equals("/api/v1/auth/register")
+                || path.equals("/api/v1/auth/refresh-token")
+                || path.equals("/api/v1/auth/logout"); 
     }
 }

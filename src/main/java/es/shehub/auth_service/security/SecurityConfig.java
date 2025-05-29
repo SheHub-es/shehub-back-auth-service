@@ -21,7 +21,7 @@ import es.shehub.auth_service.security.jwt.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     
     /**
@@ -38,8 +38,8 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers(ApiPaths.REGISTER_PATH).permitAll()
                 .requestMatchers(ApiPaths.LOGIN_PATH).permitAll()
-                // Logout requires authentication (cookie clearing)
-                .requestMatchers(ApiPaths.LOGOUT_PATH).authenticated()
+                .requestMatchers(ApiPaths.LOGOUT_PATH).permitAll()
+                .requestMatchers(ApiPaths.REFRESH_TOKEN_COOKIE_PATH).permitAll()
                 /*  .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasRole("USER") */
                 // Other endpoints require authentication

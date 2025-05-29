@@ -11,6 +11,7 @@ import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.models.dtos.LoginRequestDTO;
 import es.shehub.auth_service.models.dtos.UserCreatedDTO;
 import es.shehub.auth_service.services.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -55,4 +56,22 @@ public class AuthController {
 
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Endpoint to refresh the access token using a valid refresh token.
+     * The refresh token is expected to be in the request cookies.
+     * If valid, a new access token is returned as an HTTP-only cookie.
+     *
+     * @param request  the HTTP request containing cookies
+     * @param response the HTTP response to which the access token cookie will be added
+     * @return HTTP 200 with success message if token was refreshed,
+     *         or HTTP 401 with a Spanish error message in case of failure
+     */
+    @PostMapping(ApiPaths.REFRESH_TOKEN_COOKIE_PATH)
+    public ResponseEntity<String> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        authService.refreshToken(request, response);
+        return ResponseEntity.ok("Access token actualizado correctamente.");
+    }
+
+
 }

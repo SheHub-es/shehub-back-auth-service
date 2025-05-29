@@ -46,10 +46,10 @@ public class UserService {
             User user = userMapper.toUser(request);
 
             if (!List.of("USER", "MENTOR").contains(request.getRole().toUpperCase())) {
-                throw new ShehubException("Invalid role selected.", HttpStatus.BAD_REQUEST);
+                throw new ShehubException("Rol seleccionado no válido.", HttpStatus.BAD_REQUEST);
             }
             Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new ShehubException("Role not found", HttpStatus.BAD_REQUEST));
+                    .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
             user.setRole(role);
             if (request.getPassword() != null) {
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -57,7 +57,7 @@ public class UserService {
             User savedUser = userRepository.save(user);
             return userMapper.toUserCreatedDTO(savedUser);
         } catch (Exception e) {
-            throw new ShehubException("User registration failed. Please try again later.",
+            throw new ShehubException("El registro de usuario ha fallado. Por favor, inténtalo más tarde",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -74,11 +74,11 @@ public class UserService {
 
     public UserCreatedDTO createUser(UserRegisterRequestDTO request) {
         if (!isEmailAvailable(request.getEmail())) {
-            throw new ShehubException("The email address is already in use.", HttpStatus.BAD_REQUEST);
+            throw new ShehubException("El usuario con este email ya existe.", HttpStatus.BAD_REQUEST);
         }
 
         if (!isPasswordFormatValid(request.getPassword())) {
-            throw new ShehubException("The password should contain at least 8 characters", HttpStatus.BAD_REQUEST);
+            throw new ShehubException("La contraseña debe tener cómo mínimo 8 caracteres", HttpStatus.BAD_REQUEST);
         }
 
         return createUserInternal(request, request.getRole());
@@ -105,7 +105,7 @@ public class UserService {
      */
     public UserCreatedDTO registerGoogleUser(GoogleUserDTO googleUserDto) {
         if (!isEmailAvailable(googleUserDto.getEmail())) {
-            throw new ShehubException("User already registered.", HttpStatus.BAD_REQUEST);
+            throw new ShehubException("El usuario con este email ya existe.", HttpStatus.BAD_REQUEST);
         }
 
         UserRegisterRequestDTO request = userMapper.fromGoogleUser(googleUserDto);

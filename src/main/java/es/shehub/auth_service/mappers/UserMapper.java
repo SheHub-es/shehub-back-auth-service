@@ -3,6 +3,7 @@ package es.shehub.auth_service.mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import es.shehub.auth_service.models.dtos.GoogleUserDTO;
 import es.shehub.auth_service.models.dtos.UserCreatedDTO;
 import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
 import es.shehub.auth_service.models.entities.User;
@@ -42,4 +43,15 @@ public interface UserMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "role.name", target = "role")
     UserCreatedDTO toUserCreatedDTO(User user);
+
+    /**
+     * Maps a GoogleUserDTO to a UserRegisterRequestDTO.
+     * 
+     * Ignores field password.
+     * 
+     * @param GoogleUserDTO the User entity
+     * @return the UserCreatedDTO with mapped fields
+     */
+    @Mapping(target = "password", ignore = true)
+    UserRegisterRequestDTO fromGoogleUser(GoogleUserDTO dto);
 }

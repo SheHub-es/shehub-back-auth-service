@@ -40,7 +40,7 @@ public class User {
     private String lastName;
 
     @Column(name = "status", length = 20)
-    private String status;
+    private String status = "PENDING";
 
     @Column(name = "provider", length = 20)
     private String provider = "LOCAL";

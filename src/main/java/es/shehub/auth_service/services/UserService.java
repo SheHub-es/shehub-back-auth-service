@@ -51,6 +51,7 @@ public class UserService {
             User user = userMapper.toUser(request);
 
             if ("ADMIN".equalsIgnoreCase(roleName)) {
+                user.setStatus("APPROVED");
             } else {
                 if (!List.of("USER", "MENTOR").contains(request.getRole().toUpperCase())) {
                     throw new ShehubException("Rol seleccionado no válido.", HttpStatus.BAD_REQUEST);

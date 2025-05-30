@@ -15,4 +15,5 @@ public class UserCreatedDTO {
     private boolean profileCompleted;
     private String firstName;
     private String lastName;
+    private String status;
 }

@@ -45,7 +45,7 @@ public class UserService {
 
         try {
             if (!isEmailAvailable(request.getEmail())) {
-                throw new ShehubException("El usuario con este email ya existe.", HttpStatus.BAD_REQUEST);
+                throw new ShehubException("El usuario con este email ya existe.", HttpStatus.CONFLICT);
             }
 
             User user = userMapper.toUser(request);

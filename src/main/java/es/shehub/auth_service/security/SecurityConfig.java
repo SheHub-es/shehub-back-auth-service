@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import es.shehub.auth_service.config.ApiPaths;
 import es.shehub.auth_service.security.jwt.JwtAuthenticationFilter;
 
 @Configuration
@@ -36,10 +35,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(authorize -> authorize
                 // Public endpoints
-                .requestMatchers(ApiPaths.REGISTER_PATH).permitAll()
-                .requestMatchers(ApiPaths.LOGIN_PATH).permitAll()
-                .requestMatchers(ApiPaths.LOGOUT_PATH).permitAll()
-                .requestMatchers(ApiPaths.REFRESH_TOKEN_COOKIE_PATH).permitAll()
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 /*  .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasRole("USER") */
                 // Other endpoints require authentication

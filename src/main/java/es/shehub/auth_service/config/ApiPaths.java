@@ -11,9 +11,14 @@ public class ApiPaths {
     public static final String BASE_API = "/api/" + API_VERSION;
 
     public static final String REGISTER_PATH = BASE_API + "/auth/register";
-    public static final String CREATE_ADMIN_PATH = BASE_API + "/api/admin/create";
+    public static final String CREATE_ADMIN_PATH = BASE_API + "/admin/create";
+
     public static final String LOGIN_PATH = BASE_API + "/auth/login";
     public static final String LOGOUT_PATH = BASE_API + "/auth/logout";
+
     public static final String ACCESS_TOKEN_COOKIE_PATH = "/";
     public static final String REFRESH_TOKEN_COOKIE_PATH = BASE_API + "/auth/refresh-token";
+
+    public static final String REQUEST_PASSWORD_RESET_PATH = BASE_API + "/auth/request-password-reset";
+    public static final String RESET_PASSWORD_PATH = BASE_API + "/auth/reset-password";
 }

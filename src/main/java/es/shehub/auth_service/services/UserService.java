@@ -114,14 +114,18 @@ public class UserService {
      * @throws ShehubException if the email is already registered or registration
      *                         fails
      */
-    public UserCreatedDTO registerGoogleUser(GoogleUserDTO googleUserDto) {
-        if (!isEmailAvailable(googleUserDto.getEmail())) {
-            throw new ShehubException("El usuario con este email ya existe.", HttpStatus.BAD_REQUEST);
+    public User registerGoogleUser(GoogleUserDTO dto) {
+
+        if (!isEmailAvailable(dto.getEmail())) {
+            throw new ShehubException("User already exists", HttpStatus.BAD_REQUEST);
         }
 
-        UserRegisterRequestDTO request = userMapper.fromGoogleUser(googleUserDto);
+        User newUser = userMapper.fromGoogleUser(dto);
 
-        return createUserInternal(request, request.getRole());
+        Role role = roleRepository.findByName(dto.getRole())
+                .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
+        newUser.setRole(role);
+        return userRepository.save(newUser);
     }
 
     /**

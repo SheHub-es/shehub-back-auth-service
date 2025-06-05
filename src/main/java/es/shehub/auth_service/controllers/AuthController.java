@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -105,7 +106,8 @@ public class AuthController {
      * Validates the token and resets the password if valid.
      * Returns HTTP 200 on success or HTTP 401 if the token is invalid or expired.
      * 
-     * @param request the password reset request DTO containing the token and new password
+     * @param request the password reset request DTO containing the token and new
+     *                password
      * @return {@code ResponseEntity} with status 200 and success message or 401 and
      *         error message on failure
      */
@@ -117,6 +119,11 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
         }
+    }
+
+    @GetMapping("/success")
+    public ResponseEntity<String> success() {
+        return ResponseEntity.ok("OAuth2 login successful!");
     }
 
 }

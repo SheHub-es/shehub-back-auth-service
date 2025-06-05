@@ -52,6 +52,11 @@ public interface UserMapper {
      * @param GoogleUserDTO the User entity
      * @return the UserCreatedDTO with mapped fields
      */
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "status", constant = "PENDING")
+    @Mapping(target = "profileCompleted", constant = "false")
     @Mapping(target = "password", ignore = true)
-    UserRegisterRequestDTO fromGoogleUser(GoogleUserDTO dto);
+    @Mapping(target = "role", ignore = true) 
+    User fromGoogleUser(GoogleUserDTO dto);
 }

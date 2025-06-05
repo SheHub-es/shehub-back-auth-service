@@ -11,6 +11,7 @@ public class ApiPaths {
     public static final String BASE_API = "/api/" + API_VERSION;
 
     public static final String REGISTER_PATH = BASE_API + "/auth/register";
+    public static final String GOOGLE_REGISTER_PATH = BASE_API + "/auth/google/register";
     public static final String CREATE_ADMIN_PATH = BASE_API + "/admin/create";
 
     public static final String LOGIN_PATH = BASE_API + "/auth/login";

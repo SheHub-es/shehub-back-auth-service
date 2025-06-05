@@ -20,6 +20,7 @@ import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.UserRepository;
 import es.shehub.auth_service.security.CustomUserDetailsService;
 import es.shehub.auth_service.security.jwt.JwtUtil;
+import es.shehub.auth_service.utils.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -66,24 +67,8 @@ public class AuthService {
             String accessToken = jwtUtil.generateAccessToken(user);
             String refreshToken = jwtUtil.generateRefreshToken(user);
 
-            ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", accessToken)
-                    .httpOnly(true)
-                    .secure(true)
-                    .path(ApiPaths.ACCESS_TOKEN_COOKIE_PATH)
-                    .maxAge(Duration.ofMinutes(120))
-                    .sameSite("Strict")
-                    .build();
-
-            ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", refreshToken)
-                    .httpOnly(true)
-                    .secure(true)
-                    .path(ApiPaths.REFRESH_TOKEN_COOKIE_PATH)
-                    .maxAge(Duration.ofDays(7))
-                    .sameSite("None")
-                    .build();
-
-            response.addHeader("Set-Cookie", accessTokenCookie.toString());
-            response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+            response.addHeader("Set-Cookie", CookieUtil.createAccessTokenCookie(accessToken).toString());
+            response.addHeader("Set-Cookie", CookieUtil.createRefreshTokenCookie(refreshToken).toString());
 
             return userMapper.toUserCreatedDTO(user);
         } catch (Exception e) {
@@ -108,25 +93,10 @@ public class AuthService {
      */
 
     public void logout(HttpServletResponse response) {
-        // Create expired cookies to clear them on client side
-        ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", "")
-                .httpOnly(true)
-                .secure(true)
-                .path(ApiPaths.ACCESS_TOKEN_COOKIE_PATH)
-                .maxAge(0) // Expire immediately
-                .sameSite("Strict")
-                .build();
+        
 
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", "")
-                .httpOnly(true)
-                .secure(true)
-                .path(ApiPaths.REFRESH_TOKEN_COOKIE_PATH)
-                .maxAge(0) // Expire immediately
-                .sameSite("None")
-                .build();
-
-        response.setHeader("Set-Cookie", accessTokenCookie.toString());
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+        response.addHeader("Set-Cookie", CookieUtil.createExpiredAccessTokenCookie(null).toString());
+        response.addHeader("Set-Cookie", CookieUtil.createExpiredRefreshTokenCookie(null).toString());
     }
 
     /**
@@ -138,9 +108,12 @@ public class AuthService {
      * Throws a {@link ShehubException} with HTTP 401 status if the refresh token is
      * missing, invalid, expired, or if the user does not exist.
      *
-     * @param request  the incoming {@link HttpServletRequest} containing the cookies
-     * @param response the {@link HttpServletResponse} where the new access token cookie will be set
-     * @throws ShehubException if the refresh token is missing, invalid, expired, or user not found
+     * @param request  the incoming {@link HttpServletRequest} containing the
+     *                 cookies
+     * @param response the {@link HttpServletResponse} where the new access token
+     *                 cookie will be set
+     * @throws ShehubException if the refresh token is missing, invalid, expired, or
+     *                         user not found
      */
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
@@ -174,14 +147,6 @@ public class AuthService {
 
         String newAccessToken = jwtUtil.generateAccessToken(user);
 
-        ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", newAccessToken)
-                .httpOnly(true)
-                .secure(true)
-                .path(ApiPaths.ACCESS_TOKEN_COOKIE_PATH)
-                .maxAge(Duration.ofMinutes(60))
-                .sameSite("Strict")
-                .build();
-
-        response.setHeader("Set-Cookie", accessTokenCookie.toString());
+        response.setHeader("Set-Cookie", CookieUtil.createAccessTokenCookie(newAccessToken).toString());
     }
 }

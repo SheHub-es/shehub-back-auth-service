@@ -106,13 +106,18 @@ public class UserService {
     }
 
     /**
-     * Registers a new user authenticated through Google.
-     * Assumes password is not required.
+     * Registers a new user in the system based on Google OAuth2 user data.
+     * 
+     * This method performs the following steps:
+     * 
+     * Checks if the email provided in the GoogleUserDTO is already registered.
+     * If the email is available, maps the Google user data to a new User entity.
+     * Fetches the role specified in the DTO and assigns it to the new user.
+     * Saves the new user in the database and returns the saved entity.
      *
-     * @param googleUserDto the user data received from Google authentication
-     * @return the created user DTO
-     * @throws ShehubException if the email is already registered or registration
-     *                         fails
+     * @param dto the GoogleUserDTO containing user information from Google OAuth2
+     * @return the newly created User entity saved in the repository
+     * @throws ShehubException if the email is already registered or the specified role is not found
      */
     public User registerGoogleUser(GoogleUserDTO dto) {
 

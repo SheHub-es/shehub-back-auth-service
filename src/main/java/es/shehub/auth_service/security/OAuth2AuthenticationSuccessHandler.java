@@ -10,8 +10,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import es.shehub.auth_service.models.dtos.GoogleUserDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.shehub.auth_service.mappers.UserMapper;
+import es.shehub.auth_service.models.dtos.GoogleUserDTO;
+import es.shehub.auth_service.models.dtos.UserCreatedDTO;
 import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.UserRepository;
 import es.shehub.auth_service.security.jwt.JwtUtil;
@@ -21,18 +24,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-
 /**
  * Handles successful OAuth2 authentication events.
  * This handler processes the OAuth2 login success by:
- *  Extracting user information from the OAuth2 authentication token.
- *  Checking if the user already exists in the database; if not, registering a new user.
- *  Verifying if the user is approved to access the system.
- *  Generating JWT access and refresh tokens.
- *  Setting the tokens as HTTP cookies in the response.
- *  Redirecting the user to the frontend application (dashboard or registration page depending on profile completion).
+ * Extracting user information from the OAuth2 authentication token.
+ * Checking if the user already exists in the database; if not, registering a
+ * new user.
+ * Verifying if the user is approved to access the system.
+ * Generating JWT access and refresh tokens.
+ * Setting the tokens as HTTP cookies in the response.
+ * Redirecting the user to the frontend application (dashboard or registration
+ * page depending on profile completion).
  * 
- * If the email is not found in the OAuth2 response or the user is not approved, appropriate responses or redirects are sent.
+ * If the email is not found in the OAuth2 response or the user is not approved,
+ * appropriate responses or redirects are sent.
  */
 @Component
 @RequiredArgsConstructor
@@ -41,6 +46,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final UserRepository userRepository;
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final UserMapper userMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -71,7 +77,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             user = userOptional.get();
         }
 
-        // If not approved, redirect to SPECIAL FRONTEND PAGE that shows message "Can't login. Please, wait for the approval by the SheHub team"
+        // If not approved, redirect to SPECIAL FRONTEND PAGE that shows message "Can't
+        // login. Please, wait for the approval by the SheHub team"
         if (!"APPROVED".equalsIgnoreCase(user.getStatus())) {
             response.sendRedirect("http://localhost:5173");
             return;
@@ -83,8 +90,11 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         response.addHeader("Set-Cookie", CookieUtil.createAccessTokenCookie(accessToken).toString());
         response.addHeader("Set-Cookie", CookieUtil.createRefreshTokenCookie(refreshToken).toString());
 
-        // 👇 Redirect to frontend app (dashboard if profile is completed OR register info form if not)
-        response.sendRedirect("http://localhost:5173");
-    
+        UserCreatedDTO dto = userMapper.toUserCreatedDTO(user);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        new ObjectMapper().writeValue(response.getWriter(), dto);
+
     }
 }

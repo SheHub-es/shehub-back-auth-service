@@ -105,7 +105,8 @@ public class AuthController {
      * Validates the token and resets the password if valid.
      * Returns HTTP 200 on success or HTTP 401 if the token is invalid or expired.
      * 
-     * @param request the password reset request DTO containing the token and new password
+     * @param request the password reset request DTO containing the token and new
+     *                password
      * @return {@code ResponseEntity} with status 200 and success message or 401 and
      *         error message on failure
      */
@@ -118,5 +119,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
         }
     }
+
 
 }

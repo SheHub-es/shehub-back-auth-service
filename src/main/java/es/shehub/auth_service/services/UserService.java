@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.mappers.UserMapper;
 import es.shehub.auth_service.models.dtos.GoogleUserDTO;
+import es.shehub.auth_service.models.dtos.UpdateRoleRequestDTO;
 import es.shehub.auth_service.models.dtos.UpdateStatusRequestDTO;
 import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
@@ -137,40 +138,55 @@ public class UserService {
     }
 
     /**
-     * Updates the status of a user identified by their UUID.
+     * Updates the status of a user identified by the given ID.
+     * Validates that the new status is one of the allowed values: APPROVED,
+     * PENDING, or REJECTED.
+     * Saves the updated user and returns its corresponding UserDTO.
      *
-     * This method performs the following steps:
-     * Parses the provided string ID into a {@link UUID}.
-     * Finds the corresponding user in the repository; throws an exception if not found.
-     * Validates the new status from the request. Only "APPROVED", "PENDING", or "REJECTED" are accepted.
-     * If valid, updates the user's status and persists the change.
-     * Returns a {@link UserDTO} representing the updated user.
-     *
-     * @param request The {@link UpdateStatusRequestDTO} object containing the new status value.
-     * @param id      The UUID of the user as a string.
-     * @return The updated {@link UserDTO}.
-     *
-     * @throws ShehubException if:
-     *                         The UUID format is invalid.
-     *                         The user with the given ID does not exist.
-     *                         The new status value is not among the allowed values.
+     * @param request the request object containing the new status
+     * @param id      the string representation of the user ID (UUID)
+     * @return the updated UserDTO
+     * @throws ShehubException if the user is not found, the UUID is invalid, or the
+     *                         status is not valid
      */
     public UserDTO updateUserStatus(UpdateStatusRequestDTO request, String id) {
 
+        User user = findUserById(id);
+
+        String newStatus = request.getStatus().toUpperCase();
+
+        if (!List.of("APPROVED", "PENDING", "REJECTED").contains(newStatus)) {
+            throw new ShehubException("Selected status not valid.", HttpStatus.BAD_REQUEST);
+        }
+        user.setStatus(newStatus);
+        userRepository.save(user);
+
+        return userMapper.toUserDTO(user);
+
+    }
+
+    /*
+     * public UserDTO updateUserRole(UpdateRoleRequestDTO request, String id) {
+     * 
+     * }
+     */
+
+    // HELPER METHODS
+
+    /**
+     * Finds a User entity by its string ID.
+     * Parses the string to a UUID and fetches the user from the repository.
+     *
+     * @param id the string representation of the user ID (UUID)
+     * @return the User entity
+     * @throws ShehubException if the UUID format is invalid or the user with the given ID does not exist
+     */
+    public User findUserById(String id) {
         try {
             UUID userId = UUID.fromString(id);
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new ShehubException("User with such ID not found", HttpStatus.NOT_FOUND));
-
-            String newStatus = request.getStatus().toUpperCase();
-
-            if (!List.of("APPROVED", "PENDING", "REJECTED").contains(newStatus)) {
-                throw new ShehubException("Selected status not valid.", HttpStatus.BAD_REQUEST);
-            }
-            user.setStatus(newStatus);
-            userRepository.save(user);
-
-            return userMapper.toUserDTO(user);
+            return user;
         } catch (IllegalArgumentException e) {
             throw new ShehubException("Invalid UUID format", HttpStatus.BAD_REQUEST);
         }

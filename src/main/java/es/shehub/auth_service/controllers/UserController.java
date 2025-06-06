@@ -38,7 +38,11 @@ public class UserController {
     }
 
     /**
-     * Creates a new admin user. Accessible only to ADMINs.
+     * Endpoint to create a new admin user.
+     * 
+     * Access to this endpoint is restricted to users with the ADMIN role.
+     * @param request the request body containing the new admin user registration details
+     * @return a ResponseEntity containing the created UserDTO and HTTP status 201 (Created)
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(ApiPaths.CREATE_ADMIN_PATH)
@@ -50,7 +54,14 @@ public class UserController {
     }
 
     /**
-     * Updates a user status. Accessible only to ADMINs.
+     * Endpoint to update the status of a user identified by their userId.
+     *
+     * Access to this endpoint is restricted to users with the ADMIN role.
+     *
+     * @param userId  the UUID string of the user whose status is to be updated
+     * @param request the request body containing the new status information
+     * @return a ResponseEntity containing the updated UserDTO and HTTP status 200
+     *         (OK)
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(ApiPaths.UPDATE_USER_STATUS_PATH)

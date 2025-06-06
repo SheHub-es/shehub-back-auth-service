@@ -136,6 +136,25 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
+    /**
+     * Updates the status of a user identified by their UUID.
+     *
+     * This method performs the following steps:
+     * Parses the provided string ID into a {@link UUID}.
+     * Finds the corresponding user in the repository; throws an exception if not found.
+     * Validates the new status from the request. Only "APPROVED", "PENDING", or "REJECTED" are accepted.
+     * If valid, updates the user's status and persists the change.
+     * Returns a {@link UserDTO} representing the updated user.
+     *
+     * @param request The {@link UpdateStatusRequestDTO} object containing the new status value.
+     * @param id      The UUID of the user as a string.
+     * @return The updated {@link UserDTO}.
+     *
+     * @throws ShehubException if:
+     *                         The UUID format is invalid.
+     *                         The user with the given ID does not exist.
+     *                         The new status value is not among the allowed values.
+     */
     public UserDTO updateUserStatus(UpdateStatusRequestDTO request, String id) {
 
         try {
@@ -146,8 +165,8 @@ public class UserService {
             String newStatus = request.getStatus().toUpperCase();
 
             if (!List.of("APPROVED", "PENDING", "REJECTED").contains(newStatus)) {
-                    throw new ShehubException("Selected status not valid.", HttpStatus.BAD_REQUEST);
-                }
+                throw new ShehubException("Selected status not valid.", HttpStatus.BAD_REQUEST);
+            }
             user.setStatus(newStatus);
             userRepository.save(user);
 
@@ -155,7 +174,6 @@ public class UserService {
         } catch (IllegalArgumentException e) {
             throw new ShehubException("Invalid UUID format", HttpStatus.BAD_REQUEST);
         }
-
     }
 
     // VALIDATIONS

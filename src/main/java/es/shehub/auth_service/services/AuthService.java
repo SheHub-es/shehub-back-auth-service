@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.mappers.UserMapper;
 import es.shehub.auth_service.models.dtos.LoginRequestDTO;
-import es.shehub.auth_service.models.dtos.UserCreatedDTO;
+import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.UserRepository;
 import es.shehub.auth_service.security.CustomUserDetailsService;
@@ -48,11 +48,11 @@ public class AuthService {
      *
      * @param request  the login request containing email and password
      * @param response the {@link HttpServletResponse} where cookies will be set
-     * @return the {@link UserCreatedDTO} containing user data
+     * @return the {@link UserDTO} containing user data
      * @throws ShehubException if authentication fails
      */
 
-    public UserCreatedDTO login(LoginRequestDTO request, HttpServletResponse response) {
+    public UserDTO login(LoginRequestDTO request, HttpServletResponse response) {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
 
         try {
@@ -68,7 +68,7 @@ public class AuthService {
             response.addHeader("Set-Cookie", CookieUtil.createAccessTokenCookie(accessToken).toString());
             response.addHeader("Set-Cookie", CookieUtil.createRefreshTokenCookie(refreshToken).toString());
 
-            return userMapper.toUserCreatedDTO(user);
+            return userMapper.toUserDTO(user);
         } catch (Exception e) {
             throw new ShehubException("Credenciales inválidas", HttpStatus.UNAUTHORIZED);
         }

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.shehub.auth_service.mappers.UserMapper;
 import es.shehub.auth_service.models.dtos.GoogleUserDTO;
-import es.shehub.auth_service.models.dtos.UserCreatedDTO;
+import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.UserRepository;
 import es.shehub.auth_service.security.jwt.JwtUtil;
@@ -90,7 +90,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         response.addHeader("Set-Cookie", CookieUtil.createAccessTokenCookie(accessToken).toString());
         response.addHeader("Set-Cookie", CookieUtil.createRefreshTokenCookie(refreshToken).toString());
 
-        UserCreatedDTO dto = userMapper.toUserCreatedDTO(user);
+        UserDTO dto = userMapper.toUserDTO(user);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

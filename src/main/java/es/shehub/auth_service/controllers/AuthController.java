@@ -12,7 +12,7 @@ import es.shehub.auth_service.config.ApiPaths;
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.models.dtos.LoginRequestDTO;
 import es.shehub.auth_service.models.dtos.PasswordResetRequestDTO;
-import es.shehub.auth_service.models.dtos.UserCreatedDTO;
+import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.services.AuthService;
 import es.shehub.auth_service.services.PasswordResetService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,8 +42,8 @@ public class AuthController {
     @PostMapping(ApiPaths.LOGIN_PATH)
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
         try {
-            UserCreatedDTO userCreatedDTO = authService.login(request, response);
-            return ResponseEntity.ok(userCreatedDTO);
+            UserDTO UserDTO = authService.login(request, response);
+            return ResponseEntity.ok(UserDTO);
         } catch (ShehubException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }

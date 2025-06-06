@@ -61,7 +61,7 @@ public class UserService {
                 }
             }
 
-            Role role = roleRepository.findByName(roleName)
+            Role role = roleRepository.findByNameIgnoreCase(roleName)
                     .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
             user.setRole(role);
             if (request.getPassword() != null) {
@@ -131,8 +131,7 @@ public class UserService {
 
         User newUser = userMapper.fromGoogleUser(dto);
 
-        Role role = roleRepository.findByName(dto.getRole())
-                .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
+        Role role = findRoleByName(dto.getRole());
         newUser.setRole(role);
         return userRepository.save(newUser);
     }
@@ -165,11 +164,31 @@ public class UserService {
 
     }
 
-    /*
-     * public UserDTO updateUserRole(UpdateRoleRequestDTO request, String id) {
+    /**
+     * Updates the role of an existing user identified by the given ID.
      * 
-     * }
+     * Finds the user by ID and the role by name, then sets the new role to the user,
+     * saves the updated user in the repository, and returns the updated user as a  DTO.
+     * 
+     * @param request the DTO containing the new role name to assign to the user
+     * @param id      the string representation of the user's UUID
+     * @return the updated UserDTO reflecting the new role assignment
+     * @throws ShehubException if the user ID is invalid, the user is not found, or the role name does not exist
      */
+    public UserDTO updateUserRole(UpdateRoleRequestDTO request, String id) {
+
+        if (request.getRoleName() == null || request.getRoleName().isBlank()) {
+            throw new ShehubException("Role name must be provided", HttpStatus.BAD_REQUEST);
+        }
+        User user = findUserById(id);
+        Role role = findRoleByName(request.getRoleName());
+
+        user.setRole(role);
+        User updatedUser = userRepository.save(user);
+
+        return userMapper.toUserDTO(updatedUser);
+    }
+
 
     // HELPER METHODS
 
@@ -179,7 +198,8 @@ public class UserService {
      *
      * @param id the string representation of the user ID (UUID)
      * @return the User entity
-     * @throws ShehubException if the UUID format is invalid or the user with the given ID does not exist
+     * @throws ShehubException if the UUID format is invalid or the user with the
+     *                         given ID does not exist
      */
     public User findUserById(String id) {
         try {
@@ -190,6 +210,18 @@ public class UserService {
         } catch (IllegalArgumentException e) {
             throw new ShehubException("Invalid UUID format", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    /**
+     * Finds a Role entity by its name.
+     *
+     * @param roleName the name of the role to find
+     * @return the Role entity matching the given name
+     * @throws ShehubException if the role is not found in the database
+     */
+    public Role findRoleByName(String roleName) {
+        return roleRepository.findByNameIgnoreCase(roleName)
+                .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
     }
 
     // VALIDATIONS

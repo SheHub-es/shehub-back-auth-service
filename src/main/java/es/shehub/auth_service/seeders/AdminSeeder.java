@@ -35,7 +35,7 @@ public class AdminSeeder {
     @PostConstruct
     public void seedDefaultAdmin() {
         if (userRepository.findByEmail(defaultAdminEmail).isEmpty()) {
-            Role adminRole = roleRepository.findByName("ADMIN")
+            Role adminRole = roleRepository.findByNameIgnoreCase("ADMIN")
                     .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
 
             User admin = new User();

@@ -19,7 +19,7 @@ public class RoleSeeder {
         List<String> roles = List.of("USER", "MENTOR", "ADMIN");
 
         for (String roleName : roles) {
-            roleRepository.findByName(roleName).orElseGet(() -> {
+            roleRepository.findByNameIgnoreCase(roleName).orElseGet(() -> {
                 Role role = new Role();
                 role.setName(roleName);
                 return roleRepository.save(role);

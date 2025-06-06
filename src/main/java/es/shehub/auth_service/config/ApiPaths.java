@@ -24,4 +24,5 @@ public class ApiPaths {
     public static final String RESET_PASSWORD_PATH = BASE_API + "/auth/reset-password";
 
     public static final String UPDATE_USER_STATUS_PATH = BASE_API + "/admin/users/{userId}/status";
+    public static final String UPDATE_USER_ROLE_PATH = BASE_API + "/admin/users/{userId}/role";
 }

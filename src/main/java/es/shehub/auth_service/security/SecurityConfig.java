@@ -46,6 +46,8 @@ public class SecurityConfig {
                                                 .requestMatchers(ApiPaths.BASE_API + "/auth/**").permitAll()
                                                 // Admin endpoints
                                                 .requestMatchers(ApiPaths.BASE_API + "/admin/**").hasRole("ADMIN")
+                                                // All users endpoints
+                                                .requestMatchers(ApiPaths.BASE_API + "/users/**").authenticated()
                                                 // All other endpoints require authentication
                                                 .anyRequest().authenticated())
                                 // Use stateless session (no server-side session)

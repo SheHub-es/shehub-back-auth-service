@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -167,13 +168,16 @@ public class UserService {
     /**
      * Updates the role of an existing user identified by the given ID.
      * 
-     * Finds the user by ID and the role by name, then sets the new role to the user,
-     * saves the updated user in the repository, and returns the updated user as a  DTO.
+     * Finds the user by ID and the role by name, then sets the new role to the
+     * user,
+     * saves the updated user in the repository, and returns the updated user as a
+     * DTO.
      * 
      * @param request the DTO containing the new role name to assign to the user
      * @param id      the string representation of the user's UUID
      * @return the updated UserDTO reflecting the new role assignment
-     * @throws ShehubException if the user ID is invalid, the user is not found, or the role name does not exist
+     * @throws ShehubException if the user ID is invalid, the user is not found, or
+     *                         the role name does not exist
      */
     public UserDTO updateUserRole(UpdateRoleRequestDTO request, String id) {
 
@@ -189,6 +193,36 @@ public class UserService {
         return userMapper.toUserDTO(updatedUser);
     }
 
+    /**
+     * Deletes a user by their ID after verifying authorization.
+     * A user can delete their own account, and admins can delete any account.
+     *
+     * @param userId         the ID of the user to delete
+     * @param authentication the current authenticated user's security context
+     * @throws ShehubException if the authenticated user is not authorized,
+     *                         if the user is not found, or if a deletion error
+     *                         occurs
+     */
+    public void deleteUserById(String userId, Authentication authentication) {
+        String authenticatedUsername = authentication.getName();
+        User authenticatedUser = userRepository.findByEmail(authenticatedUsername)
+                .orElseThrow(() -> new ShehubException("Authenticated user not found", HttpStatus.UNAUTHORIZED));
+
+        boolean isAdmin = authenticatedUser.getRole().getName().equalsIgnoreCase("ADMIN");
+        boolean isSelf = authenticatedUser.getId().toString().equals(userId);
+
+        if (!isAdmin && !isSelf) {
+            throw new ShehubException("You are not authorized to delete this user", HttpStatus.FORBIDDEN);
+        }
+
+        User userToDelete = findUserById(userId);
+        try {
+            userRepository.delete(userToDelete);
+        } catch (Exception e) {
+            throw new ShehubException("Something went wrong when deleting a user", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
     // HELPER METHODS
 

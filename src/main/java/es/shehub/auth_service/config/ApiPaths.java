@@ -25,4 +25,6 @@ public class ApiPaths {
 
     public static final String UPDATE_USER_STATUS_PATH = BASE_API + "/admin/users/{userId}/status";
     public static final String UPDATE_USER_ROLE_PATH = BASE_API + "/admin/users/{userId}/role";
+
+    public static final String DELETE_USER_PATH = BASE_API + "/users/{userId}/delete";
 }

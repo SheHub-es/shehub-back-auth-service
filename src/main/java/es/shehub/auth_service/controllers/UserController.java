@@ -14,6 +14,7 @@ import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
 import es.shehub.auth_service.services.UserService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,7 +66,8 @@ public class UserController {
      *
      * @param userId  the UUID string of the user whose status is to be updated
      * @param request the request body containing the new status information
-     * @return a ResponseEntity containing the updated UserDTO and HTTP status 200 (OK)
+     * @return a ResponseEntity containing the updated UserDTO and HTTP status 200
+     *         (OK)
      * @throws ShehubException if the user or status is not found or invalid
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -86,7 +88,8 @@ public class UserController {
      * 
      * @param userId  the UUID string of the user whose role is to be updated
      * @param request the DTO containing the new role name to assign to the user
-     * @return a ResponseEntity containing the updated UserDTO and HTTP status 200 OK
+     * @return a ResponseEntity containing the updated UserDTO and HTTP status 200
+     *         OK
      * @throws ShehubException if the user or role is not found or invalid
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -98,5 +101,22 @@ public class UserController {
         UserDTO updatedUser = userService.updateUserRole(request, userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    }
+
+    /**
+     * Deletes a user by their ID.
+     * Only authenticated users can perform this action. A user can delete their own account,
+     * while users with ADMIN role can delete any account.
+     *
+     * @param userId         ID of the user to be deleted
+     * @param authentication the current authenticated user's security context
+     * @return 204 No Content response if deletion is successful
+     */
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping(ApiPaths.DELETE_USER_PATH)
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId,
+            org.springframework.security.core.Authentication authentication) {
+        userService.deleteUserById(userId, authentication);
+        return ResponseEntity.noContent().build();
     }
 }

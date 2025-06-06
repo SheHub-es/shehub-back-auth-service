@@ -2,6 +2,7 @@ package es.shehub.auth_service.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.mappers.UserMapper;
 import es.shehub.auth_service.models.dtos.GoogleUserDTO;
+import es.shehub.auth_service.models.dtos.UpdateStatusRequestDTO;
 import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
 import es.shehub.auth_service.models.entities.Role;
@@ -117,7 +119,8 @@ public class UserService {
      *
      * @param dto the GoogleUserDTO containing user information from Google OAuth2
      * @return the newly created User entity saved in the repository
-     * @throws ShehubException if the email is already registered or the specified role is not found
+     * @throws ShehubException if the email is already registered or the specified
+     *                         role is not found
      */
     public User registerGoogleUser(GoogleUserDTO dto) {
 
@@ -133,9 +136,29 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    
+    public UserDTO updateUserStatus(UpdateStatusRequestDTO request, String id) {
 
-    //VALIDATIONS
+        try {
+            UUID userId = UUID.fromString(id);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ShehubException("User with such ID not found", HttpStatus.NOT_FOUND));
+
+            String newStatus = request.getStatus().toUpperCase();
+
+            if (!List.of("APPROVED", "PENDING", "REJECTED").contains(newStatus)) {
+                    throw new ShehubException("Selected status not valid.", HttpStatus.BAD_REQUEST);
+                }
+            user.setStatus(newStatus);
+            userRepository.save(user);
+
+            return userMapper.toUserDTO(user);
+        } catch (IllegalArgumentException e) {
+            throw new ShehubException("Invalid UUID format", HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    // VALIDATIONS
     /**
      * Validates whether the provided email is available (i.e., not already used) in
      * the database.

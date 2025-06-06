@@ -7,7 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.shehub.auth_service.config.ApiPaths;
-import es.shehub.auth_service.models.dtos.UserCreatedDTO;
+import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
 import es.shehub.auth_service.services.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,9 +26,9 @@ public class UserController {
      * @return The created user details.
      */
     @PostMapping(ApiPaths.REGISTER_PATH)
-    public ResponseEntity<UserCreatedDTO> registerUser(@RequestBody UserRegisterRequestDTO request) {
+    public ResponseEntity<UserDTO> registerUser(@RequestBody UserRegisterRequestDTO request) {
 
-        UserCreatedDTO newUser = userService.createUser(request);
+        UserDTO newUser = userService.createUser(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
@@ -38,9 +38,9 @@ public class UserController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(ApiPaths.CREATE_ADMIN_PATH)
-    public ResponseEntity<UserCreatedDTO> createAdmin(@RequestBody UserRegisterRequestDTO request) {
+    public ResponseEntity<UserDTO> createAdmin(@RequestBody UserRegisterRequestDTO request) {
 
-        UserCreatedDTO newAdmin = userService.createAdmin(request);
+        UserDTO newAdmin = userService.createAdmin(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(newAdmin);
     }

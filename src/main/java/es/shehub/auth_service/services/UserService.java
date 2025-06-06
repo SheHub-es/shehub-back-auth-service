@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.mappers.UserMapper;
 import es.shehub.auth_service.models.dtos.GoogleUserDTO;
-import es.shehub.auth_service.models.dtos.UserCreatedDTO;
+import es.shehub.auth_service.models.dtos.UserDTO;
 import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
 import es.shehub.auth_service.models.entities.Role;
 import es.shehub.auth_service.models.entities.User;
@@ -41,7 +41,7 @@ public class UserService {
      * @throws ShehubException if the role is invalid, user creation fails, or
      *                         persistence errors occur
      */
-    public UserCreatedDTO createUserInternal(UserRegisterRequestDTO request, String roleName) {
+    public UserDTO createUserInternal(UserRegisterRequestDTO request, String roleName) {
 
         try {
             if (!isEmailAvailable(request.getEmail())) {
@@ -65,7 +65,7 @@ public class UserService {
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
             }
             User savedUser = userRepository.save(user);
-            return userMapper.toUserCreatedDTO(savedUser);
+            return userMapper.toUserDTO(savedUser);
         } catch (Exception e) {
 
             System.err.println("Error creating user: " + e.getClass().getName() + " - " + e.getMessage());
@@ -85,7 +85,7 @@ public class UserService {
      * @throws ShehubException if the email is in use or password is invalid
      */
 
-    public UserCreatedDTO createUser(UserRegisterRequestDTO request) {
+    public UserDTO createUser(UserRegisterRequestDTO request) {
 
         if (!isPasswordFormatValid(request.getPassword())) {
             throw new ShehubException("La contraseña debe tener cómo mínimo 8 caracteres", HttpStatus.BAD_REQUEST);
@@ -101,7 +101,7 @@ public class UserService {
      * @param request the registration request containing admin details
      * @return the created admin user DTO
      */
-    public UserCreatedDTO createAdmin(UserRegisterRequestDTO request) {
+    public UserDTO createAdmin(UserRegisterRequestDTO request) {
         return createUserInternal(request, "ADMIN");
     }
 
@@ -133,6 +133,9 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
+    
+
+    //VALIDATIONS
     /**
      * Validates whether the provided email is available (i.e., not already used) in
      * the database.

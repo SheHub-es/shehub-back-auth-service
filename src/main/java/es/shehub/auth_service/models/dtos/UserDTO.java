@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserCreatedDTO {
+public class UserDTO {
     private String id;
     private String role;
     private boolean profileCompleted;

@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.shehub.auth_service.mappers.UserMapper;
-import es.shehub.auth_service.models.dtos.GoogleUserDTO;
-import es.shehub.auth_service.models.dtos.UserDTO;
+import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
+import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.UserRepository;
 import es.shehub.auth_service.security.jwt.JwtUtil;

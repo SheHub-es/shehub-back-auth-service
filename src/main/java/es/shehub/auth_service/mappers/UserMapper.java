@@ -3,9 +3,9 @@ package es.shehub.auth_service.mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import es.shehub.auth_service.models.dtos.GoogleUserDTO;
-import es.shehub.auth_service.models.dtos.UserDTO;
-import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
+import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.models.entities.User;
 
 /**

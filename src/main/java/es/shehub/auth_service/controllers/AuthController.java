@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.shehub.auth_service.config.ApiPaths;
 import es.shehub.auth_service.exceptions.ShehubException;
-import es.shehub.auth_service.models.dtos.LoginRequestDTO;
-import es.shehub.auth_service.models.dtos.PasswordResetRequestDTO;
-import es.shehub.auth_service.models.dtos.UserDTO;
+import es.shehub.auth_service.models.dtos.requests.LoginRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.PasswordResetRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.services.AuthService;
 import es.shehub.auth_service.services.PasswordResetService;
 import jakarta.servlet.http.HttpServletRequest;

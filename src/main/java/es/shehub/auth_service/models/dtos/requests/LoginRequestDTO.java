@@ -1,4 +1,4 @@
-package es.shehub.auth_service.models.dtos;
+package es.shehub.auth_service.models.dtos.requests;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

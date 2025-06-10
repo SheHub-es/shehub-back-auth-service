@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.mappers.UserMapper;
-import es.shehub.auth_service.models.dtos.LoginRequestDTO;
-import es.shehub.auth_service.models.dtos.UserDTO;
+import es.shehub.auth_service.models.dtos.requests.LoginRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.UserRepository;
 import es.shehub.auth_service.security.CustomUserDetailsService;

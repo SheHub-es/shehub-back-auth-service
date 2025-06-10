@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.mappers.UserMapper;
-import es.shehub.auth_service.models.dtos.GoogleUserDTO;
-import es.shehub.auth_service.models.dtos.UpdateRoleRequestDTO;
-import es.shehub.auth_service.models.dtos.UpdateStatusRequestDTO;
-import es.shehub.auth_service.models.dtos.UserDTO;
-import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
+import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.models.entities.Role;
 import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.RoleRepository;
@@ -187,11 +187,20 @@ public class UserService {
         User user = findUserById(id);
         Role role = findRoleByName(request.getRoleName());
 
+        //To ask team about this validation
+
+        /*  if (role.getName().equalsIgnoreCase("ADMIN")) {
+            throw new ShehubException("Use the createAdmin endpoint to assign ADMIN role", HttpStatus.BAD_REQUEST);
+        } */
+
         user.setRole(role);
         User updatedUser = userRepository.save(user);
 
         return userMapper.toUserDTO(updatedUser);
     }
+
+
+    
 
     /**
      * Deletes a user by their ID after verifying authorization.

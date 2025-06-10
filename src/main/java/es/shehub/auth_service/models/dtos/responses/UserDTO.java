@@ -1,4 +1,4 @@
-package es.shehub.auth_service.models.dtos;
+package es.shehub.auth_service.models.dtos.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +9,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserRegisterRequestDTO {
-    private String email;
-    private String password;
+public class UserDTO {
+    private String id;
+    private String role;
+    private boolean profileCompleted;
     private String firstName;
     private String lastName;
-    private String role;
+    private String status;
 }

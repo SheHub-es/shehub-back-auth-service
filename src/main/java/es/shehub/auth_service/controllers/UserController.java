@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.shehub.auth_service.config.ApiPaths;
 import es.shehub.auth_service.exceptions.ShehubException;
-import es.shehub.auth_service.models.dtos.UpdateRoleRequestDTO;
-import es.shehub.auth_service.models.dtos.UpdateStatusRequestDTO;
-import es.shehub.auth_service.models.dtos.UserDTO;
-import es.shehub.auth_service.models.dtos.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.services.UserService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;

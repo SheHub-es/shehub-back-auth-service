@@ -27,5 +27,7 @@ public class ApiPaths {
     public static final String UPDATE_USER_ROLE_PATH = BASE_API + "/admin/users/{userId}/role";
     public static final String UPDATE_USER_DATA_PATH = BASE_API + "/users/{userId}/update";
 
+    public static final String GET_FULL_USER_DATA_PATH = BASE_API + "/admin/users/{userId}/get-full-data";
+
     public static final String DELETE_USER_PATH = BASE_API + "/users/{userId}/delete";
 }

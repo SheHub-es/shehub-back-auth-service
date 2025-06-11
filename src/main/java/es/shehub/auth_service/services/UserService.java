@@ -2,6 +2,7 @@ package es.shehub.auth_service.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -11,14 +12,19 @@ import org.springframework.stereotype.Service;
 
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.mappers.UserMapper;
+import es.shehub.auth_service.models.dtos.common.SchoolDTO;
+import es.shehub.auth_service.models.dtos.common.SkillDTO;
+import es.shehub.auth_service.models.dtos.common.TechRoleDTO;
 import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateUserRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.FullUserDataDTO;
 import es.shehub.auth_service.models.dtos.responses.ProfileUserDataDTO;
-import es.shehub.auth_service.models.dtos.responses.UpdatedUserProjectDTO;
+import es.shehub.auth_service.models.dtos.responses.UserProjectDataDTO;
 import es.shehub.auth_service.models.dtos.responses.UserDTO;
+
 import es.shehub.auth_service.models.entities.Role;
 import es.shehub.auth_service.models.entities.User;
 import es.shehub.auth_service.repositories.RoleRepository;
@@ -208,9 +214,12 @@ public class UserService {
 
     /**
      * Updates the basic user data such as first and last name.
-     * Persists changes to the database and prepares profile data by combining user and user project info.
+     * Persists changes to the database, sends update request to User-Project
+     * service,
+     * prepares profile data by combining user and user project info get from the
+     * call.
      * 
-     * @param id the ID of the user to update
+     * @param id            the ID of the user to update
      * @param updateRequest the data to update
      * @return the user's updated profile data
      */
@@ -229,11 +238,22 @@ public class UserService {
 
         // 4. Call user-project service
         // TODO: Replace this with a real REST call to user-project service
-        // UpdatedUserProjectDTO userProject = REST CALL to updateUserProfile(updateRequest);
-        UpdatedUserProjectDTO userProject = new UpdatedUserProjectDTO();
+        // UpdatedUserProjectDTO userProject = REST CALL to
+        // updateUserProfile(updateRequest);
+        UserProjectDataDTO userProject = createMockUserProjectData();
         ProfileUserDataDTO userProfileData = userMapper.toProfileUserDataDTO(user, userProject);
 
         return userProfileData;
+    }
+
+    public FullUserDataDTO getFullUserData(String id) {
+        User user = findUserById(id);
+
+        // TODO: Replace this with real call to user project service to fetch
+        // userProjectData
+        UserProjectDataDTO userProjectData = createMockUserProjectData();
+
+        return userMapper.toFullUserDataDTO(user, userProjectData);
     }
 
     /**
@@ -299,6 +319,25 @@ public class UserService {
     public Role findRoleByName(String roleName) {
         return roleRepository.findByNameIgnoreCase(roleName)
                 .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
+    }
+
+    // TODO: delete this mock object when implemented REST calls to user-project service
+
+    private UserProjectDataDTO createMockUserProjectData() {
+        UserProjectDataDTO mock = new UserProjectDataDTO();
+        mock.setAvatarLink("https://example.com/avatar.png");
+        mock.setAvailabilityPerWeek(20);
+        mock.setTeamLead(false);
+        mock.setLinkedinLink("https://linkedin.com/in/example");
+        mock.setGithubLink("https://github.com/example");
+        mock.setPortfolioLink("https://portfolio.example.com");
+        mock.setComments("Looking forward to collaborating!");
+
+        mock.setTechRoles(Set.of(new TechRoleDTO(1,"Backend Developer")));
+        mock.setSkills(Set.of(new SkillDTO(5, "Java", "programming language")));
+        mock.setSchools(Set.of(new SchoolDTO(3, "Factoria F5", "bootcamp")));
+
+        return mock;
     }
 
     // VALIDATIONS

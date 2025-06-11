@@ -9,7 +9,8 @@ import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
 import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
 import es.shehub.auth_service.models.dtos.responses.FullUserDataDTO;
 import es.shehub.auth_service.models.dtos.responses.ProfileUserDataDTO;
-import es.shehub.auth_service.models.dtos.responses.UpdatedUserProjectDTO;
+
+import es.shehub.auth_service.models.dtos.responses.UserProjectDataDTO;
 import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.models.entities.User;
 
@@ -67,17 +68,12 @@ public interface UserMapper {
     User fromGoogleUser(GoogleUserDTO dto);
 
     /**
-     * Maps user data from both the User entity and the UpdatedUserProjectDTO
-     * into a FullUserDataDTO.
+     * Maps user data from both the User entity and the UserProjectDataDTO into a FullUserDataDTO.
      *
-     * Combines profile information, role, and account metadata from the auth
-     * service
-     * with extended user details like skills, tech roles, and availability from the
-     * user-project service.
+     * Combines profile information, role, and account metadata from the auth service
+     * with extended user details like skills, tech roles, and availability from the user-project service.
      *
-     * This method is typically used to prepare detailed user data for admin
-     * dashboards or
-     * comprehensive profile views.
+     * This method is typically used to prepare detailed user data for admin dashboards or comprehensive profile views.
      *
      * @param user        the User entity containing core account information
      * @param userProject the DTO containing extended user profile data
@@ -102,13 +98,13 @@ public interface UserMapper {
     @Mapping(target = "comments", source = "userProject.comments")
     @Mapping(target = "teamLead", source = "userProject.teamLead")
     @Mapping(target = "role", source = "user", qualifiedByName = "mapRoleName")
-    FullUserDataDTO toFullUserDataDTO(User user, UpdatedUserProjectDTO userProject);
+    FullUserDataDTO toFullUserDataDTO(User user, UserProjectDataDTO userProject);
 
     /**
-     * Maps User entity and UpdatedUserProjectDTO to a ProfileUserDataDTO.
+     * Maps User entity and UserProjectDataDTO to a ProfileUserDataDTO.
      * 
      * Combines basic user information from the User entity with project-related details
-     * from UpdatedUserProjectDTO to build a complete profile data transfer object
+     * from UserProjectDataDTO to build a complete profile data transfer object
      * suitable for user profile views.
      * 
      * Fields mapped include identification, contact info, profile status,
@@ -116,7 +112,7 @@ public interface UserMapper {
      * The user's role is converted to a String using the custom mapRoleName method.
      * 
      * @param user        the User entity containing core user data
-     * @param userProject the UpdatedUserProjectDTO containing project-specific user info
+     * @param userProject the UserProjectDataDTO containing project-specific user info
      * @return a populated ProfileUserDataDTO representing the user's profile data
      */
     @Mapping(target = "id", source = "user.id")
@@ -135,7 +131,8 @@ public interface UserMapper {
     @Mapping(target = "comments", source = "userProject.comments")
     @Mapping(target = "teamLead", source = "userProject.teamLead")
     @Mapping(target = "role", source = "user", qualifiedByName = "mapRoleName")
-    ProfileUserDataDTO toProfileUserDataDTO(User user, UpdatedUserProjectDTO userProject);
+    ProfileUserDataDTO toProfileUserDataDTO(User user, UserProjectDataDTO userProject);
+
 
     /**
      * Extracts the role name as a String from the User entity.

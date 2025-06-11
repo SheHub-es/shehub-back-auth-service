@@ -12,11 +12,13 @@ import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateUserRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.FullUserDataDTO;
 import es.shehub.auth_service.models.dtos.responses.ProfileUserDataDTO;
 import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.services.UserService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -118,7 +120,15 @@ public class UserController {
             @RequestBody UpdateUserRequestDTO updateRequest) {
         ProfileUserDataDTO updatedUser = userService.updateUserData(userId, updateRequest);
 
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(ApiPaths.GET_FULL_USER_DATA_PATH) 
+    public ResponseEntity<FullUserDataDTO> getFullUserData(@PathVariable String userId) {
+        FullUserDataDTO fullUserData = userService.getFullUserData(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(fullUserData);
     }
 
     /**

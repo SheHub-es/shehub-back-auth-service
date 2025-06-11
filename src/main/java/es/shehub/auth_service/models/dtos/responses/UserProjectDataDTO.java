@@ -15,7 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UpdatedUserProjectDTO {
+public class UserProjectDataDTO {
+    private String id;
     private String firstName;
     private String lastName;
     private String avatarLink;

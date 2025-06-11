@@ -14,7 +14,10 @@ import es.shehub.auth_service.mappers.UserMapper;
 import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.UpdateUserRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.ProfileUserDataDTO;
+import es.shehub.auth_service.models.dtos.responses.UpdatedUserProjectDTO;
 import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.models.entities.Role;
 import es.shehub.auth_service.models.entities.User;
@@ -187,11 +190,15 @@ public class UserService {
         User user = findUserById(id);
         Role role = findRoleByName(request.getRoleName());
 
-        //To ask team about this validation
+        // To ask team about this validation
 
-        /*  if (role.getName().equalsIgnoreCase("ADMIN")) {
-            throw new ShehubException("Use the createAdmin endpoint to assign ADMIN role", HttpStatus.BAD_REQUEST);
-        } */
+        /*
+         * if (role.getName().equalsIgnoreCase("ADMIN")) {
+         * throw new
+         * ShehubException("Use the createAdmin endpoint to assign ADMIN role",
+         * HttpStatus.BAD_REQUEST);
+         * }
+         */
 
         user.setRole(role);
         User updatedUser = userRepository.save(user);
@@ -199,8 +206,35 @@ public class UserService {
         return userMapper.toUserDTO(updatedUser);
     }
 
+    /**
+     * Updates the basic user data such as first and last name.
+     * Persists changes to the database and prepares profile data by combining user and user project info.
+     * 
+     * @param id the ID of the user to update
+     * @param updateRequest the data to update
+     * @return the user's updated profile data
+     */
+    public ProfileUserDataDTO updateUserData(String id, UpdateUserRequestDTO updateRequest) {
 
-    
+        User user = findUserById(id);
+
+        if (updateRequest.getFirstName() != null) {
+            user.setFirstName(updateRequest.getFirstName());
+        }
+        if (updateRequest.getLastName() != null) {
+            user.setLastName(updateRequest.getLastName());
+        }
+
+        userRepository.save(user);
+
+        // 4. Call user-project service
+        // TODO: Replace this with a real REST call to user-project service
+        // UpdatedUserProjectDTO userProject = REST CALL to updateUserProfile(updateRequest);
+        UpdatedUserProjectDTO userProject = new UpdatedUserProjectDTO();
+        ProfileUserDataDTO userProfileData = userMapper.toProfileUserDataDTO(user, userProject);
+
+        return userProfileData;
+    }
 
     /**
      * Deletes a user by their ID after verifying authorization.

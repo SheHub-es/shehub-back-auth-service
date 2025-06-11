@@ -10,7 +10,9 @@ import es.shehub.auth_service.config.ApiPaths;
 import es.shehub.auth_service.exceptions.ShehubException;
 import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
+import es.shehub.auth_service.models.dtos.requests.UpdateUserRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
+import es.shehub.auth_service.models.dtos.responses.ProfileUserDataDTO;
 import es.shehub.auth_service.models.dtos.responses.UserDTO;
 import es.shehub.auth_service.services.UserService;
 
@@ -104,8 +106,25 @@ public class UserController {
     }
 
     /**
+     * Handles PATCH request to update user data.
+     * Accepts partial updates and returns the updated profile information.
+     * 
+     * @param userId the ID of the user to update
+     * @param updateRequest the data to update
+     * @return ResponseEntity containing the updated profile data
+     */
+    @PatchMapping(ApiPaths.UPDATE_USER_DATA_PATH)
+    public ResponseEntity<ProfileUserDataDTO> updateUserData(@PathVariable String userId,
+            @RequestBody UpdateUserRequestDTO updateRequest) {
+        ProfileUserDataDTO updatedUser = userService.updateUserData(userId, updateRequest);
+
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
      * Deletes a user by their ID.
-     * Only authenticated users can perform this action. A user can delete their own account,
+     * Only authenticated users can perform this action. A user can delete their own
+     * account,
      * while users with ADMIN role can delete any account.
      *
      * @param userId         ID of the user to be deleted

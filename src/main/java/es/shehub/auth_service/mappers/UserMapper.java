@@ -4,9 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import es.shehub.auth_service.models.dtos.requests.AuthUserUpdateRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
-import es.shehub.auth_service.models.dtos.requests.UpdateUserRequestDTO;
+
 import es.shehub.auth_service.models.dtos.requests.UserRegisterRequestDTO;
 import es.shehub.auth_service.models.dtos.responses.FullUserDataDTO;
 import es.shehub.auth_service.models.dtos.responses.ProfileUserDataDTO;
@@ -137,18 +136,6 @@ public interface UserMapper {
     @Mapping(target = "teamLead", source = "userProject.teamLead")
     @Mapping(target = "role", source = "user", qualifiedByName = "mapRoleName")
     ProfileUserDataDTO toProfileUserDataDTO(User user, UpdatedUserProjectDTO userProject);
-
-    /**
-     * Maps the shared fields from UpdateUserRequestDTO to AuthUserUpdateRequestDTO.
-     * 
-     * Used to extract only the relevant data (e.g., first name and last name)
-     * that should be handled by the auth service from a broader user update
-     * request.
-     *
-     * @param request the full update request containing all user profile data
-     * @return a DTO with only the fields needed by the auth service
-     */
-    AuthUserUpdateRequestDTO fromUpdateRequest(UpdateUserRequestDTO request);
 
     /**
      * Extracts the role name as a String from the User entity.

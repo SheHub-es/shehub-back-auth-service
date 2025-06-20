@@ -31,6 +31,6 @@ public class ApiPaths {
     public static final String GET_USERS_LIST_PATH = BASE_API + "/admin/users/get-users-list";
     
     public static final String GET_USER_PROFILE_PATH = BASE_API + "/users/{userId}/get-user-profile";
-    public static final String UPDATE_USER_PASSWORD_PATH = BASE_API + "/users/{userId}/update-paswword";
+    public static final String UPDATE_USER_PASSWORD_PATH = BASE_API + "/users/update-password";
     public static final String DELETE_USER_PATH = BASE_API + "/users/{userId}/delete";
 }

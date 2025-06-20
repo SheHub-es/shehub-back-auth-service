@@ -309,6 +309,41 @@ public class UserService {
     }
 
     /**
+     * Retrieves the profile data of the currently authenticated user.
+     *
+     * This method ensures that a user can only access their own profile information.
+     * It verifies the authenticated user's identity and matches it with the requested userId.
+     * If authorized, the method retrieves user data and combines it with mock project data
+     * (to be replaced with a real call to the user-project service).
+     *
+     * @param userId         the ID of the user whose profile is being requested
+     * @param authentication the authentication object containing the currently
+     *                       authenticated user's details
+     * @return a ProfileUserDataDTO containing the user's profile information
+     * @throws ShehubException if the user ID is invalid, the user is not found, or
+     *                         the requester is not authorized
+     */
+    public ProfileUserDataDTO getUserProfile(String userId, Authentication authentication) {
+        User user = findUserById(userId);
+
+        String authenticatedUsername = authentication.getName();
+        User authenticatedUser = userRepository.findByEmail(authenticatedUsername)
+                .orElseThrow(() -> new ShehubException("Authenticated user not found", HttpStatus.UNAUTHORIZED));
+
+        boolean isSelf = authenticatedUser.getId().toString().equals(userId);
+
+        if (!isSelf) {
+            throw new ShehubException("You are not authorized to see the profile of this user", HttpStatus.FORBIDDEN);
+        }
+
+        // TODO: Replace this with real call to user project service to fetch
+        // userProjectData
+        UserProjectDataDTO userProjectData = createMockUserProjectData();
+
+        return userMapper.toProfileUserDataDTO(user, userProjectData);
+    }
+
+    /**
      * Deletes a user by their ID after verifying authorization.
      * A user can delete their own account, and admins can delete any account.
      *

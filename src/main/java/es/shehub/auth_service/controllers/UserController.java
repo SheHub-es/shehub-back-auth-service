@@ -126,9 +126,11 @@ public class UserController {
     }
 
     /**
-     * Endpoint for administrators to retrieve full profile data for a specific user.
+     * Endpoint for administrators to retrieve full profile data for a specific
+     * user.
      *
-     * Requires the ADMIN role. Combines user account information with full profile data.
+     * Requires the ADMIN role. Combines user account information with full profile
+     * data.
      *
      * @param userId the ID of the user to retrieve
      * @return HTTP 200 OK response containing the FullUserDataDTO of the specified
@@ -157,6 +159,31 @@ public class UserController {
         List<FullUserDataDTO> fullUserDataList = userService.getAllUsersFullUserDataDTO();
 
         return ResponseEntity.ok(fullUserDataList);
+    }
+
+    /**
+     * Retrieves the authenticated user's profile information.
+     *
+     * This endpoint ensures that a user can only fetch their own profile data.
+     * It checks the authentication details and matches them with the requested
+     * userId.
+     * If the request is valid, returns the user's profile information.
+     *
+     * @param userId         the ID of the user requesting their own profile
+     * @param authentication the current authentication object representing the
+     *                       logged-in user
+     * @return ResponseEntity containing the user's profile data
+     * @throws ShehubException if the authenticated user is not allowed to view this
+     *                         profile
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(ApiPaths.GET_USERS_LIST_PATH)
+    public ResponseEntity<ProfileUserDataDTO> getUserProfile(@PathVariable String userId,
+            org.springframework.security.core.Authentication authentication) {
+
+        ProfileUserDataDTO userProfileData = userService.getUserProfile(userId, authentication);
+
+        return ResponseEntity.ok(userProfileData);
     }
 
     /**

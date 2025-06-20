@@ -1,9 +1,12 @@
 package es.shehub.auth_service.services;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -236,7 +239,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        // 4. Call user-project service
+        // Call user-project service
         // TODO: Replace this with a real REST call to user-project service
         // UpdatedUserProjectDTO userProject = REST CALL to
         // updateUserProfile(updateRequest);
@@ -246,6 +249,15 @@ public class UserService {
         return userProfileData;
     }
 
+    /**
+     * Retrieves full profile data for a single user by ID.
+     *
+     * Combines core user information from the authentication database with
+     * extended project profile data (currently mocked).
+     *
+     * @param id the string representation of the user's UUID
+     * @return a FullUserDataDTO containing both core and extended profile data
+     */
     public FullUserDataDTO getFullUserData(String id) {
         User user = findUserById(id);
 
@@ -254,6 +266,46 @@ public class UserService {
         UserProjectDataDTO userProjectData = createMockUserProjectData();
 
         return userMapper.toFullUserDataDTO(user, userProjectData);
+    }
+
+    /**
+     * Retrieves a list of full user data by combining core user information
+     * from the authentication database with extended profile data from an
+     * external user-project service (currently mocked).
+     *
+     * It matches users by their ID and merges the data into FullUserDataDTO
+     * objects.
+     *
+     * @return a list of FullUserDataDTO containing enriched user profiles
+     */
+    public List<FullUserDataDTO> getAllUsersFullUserDataDTO() {
+        List<User> allUsers = userRepository.findAll();
+
+        // TODO: Replace this with real call to user project service to fetch
+        // userProjectData
+        List<UserProjectDataDTO> userProjectDataList = createMockUserProjectDataList();
+
+        Map<UUID, User> userMap = allUsers.stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        return userProjectDataList.stream()
+                .map(dto -> {
+                    try {
+                        UUID userId = UUID.fromString(dto.getId());
+                        User user = userMap.get(userId);
+
+                        System.out.println("DTO ID: " + dto.getId());
+                        dto.getTechRoles().forEach(role -> System.out.println("Role name: " + role.getName()));
+
+                        return user != null ? userMapper.toFullUserDataDTO(user, dto) : null;
+                    } catch (IllegalArgumentException e) {
+                        // Invalid UUID string — log or handle if needed
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
     }
 
     /**
@@ -321,10 +373,13 @@ public class UserService {
                 .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
     }
 
-    // TODO: delete this mock object when implemented REST calls to user-project service
+    // TODO: delete this mock object when implemented REST calls to user-project
+    // service
 
     private UserProjectDataDTO createMockUserProjectData() {
         UserProjectDataDTO mock = new UserProjectDataDTO();
+        mock.setId(UUID.randomUUID().toString());
+
         mock.setAvatarLink("https://example.com/avatar.png");
         mock.setAvailabilityPerWeek(20);
         mock.setTeamLead(false);
@@ -333,11 +388,30 @@ public class UserService {
         mock.setPortfolioLink("https://portfolio.example.com");
         mock.setComments("Looking forward to collaborating!");
 
-        mock.setTechRoles(Set.of(new TechRoleDTO(1,"Backend Developer")));
+        mock.setTechRoles(Set.of(new TechRoleDTO(1, "Backend Developer")));
         mock.setSkills(Set.of(new SkillDTO(5, "Java", "programming language")));
         mock.setSchools(Set.of(new SchoolDTO(3, "Factoria F5", "bootcamp")));
 
         return mock;
+    }
+
+    // TODO: delete this mock object when implemented REST calls to user-project
+    // service
+    private List<UserProjectDataDTO> createMockUserProjectDataList() {
+        UserProjectDataDTO user1 = createMockUserProjectData();
+
+        UserProjectDataDTO user2 = createMockUserProjectData();
+
+        List<User> users = userRepository.findAll();
+
+        user1.setId(users.get(0).getId().toString());
+        user2.setId(users.get(1).getId().toString());
+
+        user2.setGithubLink("https://github.com/example2");
+        user2.setAvatarLink("https://example.com/avatar2.png");
+        user2.setTechRoles(Set.of(new TechRoleDTO(2, "Frontend Developer")));
+
+        return List.of(user1, user2);
     }
 
     // VALIDATIONS

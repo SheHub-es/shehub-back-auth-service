@@ -1,5 +1,7 @@
 package es.shehub.auth_service.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -111,7 +113,7 @@ public class UserController {
      * Handles PATCH request to update user data.
      * Accepts partial updates and returns the updated profile information.
      * 
-     * @param userId the ID of the user to update
+     * @param userId        the ID of the user to update
      * @param updateRequest the data to update
      * @return ResponseEntity containing the updated profile data
      */
@@ -123,12 +125,38 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 
+    /**
+     * Endpoint for administrators to retrieve full profile data for a specific user.
+     *
+     * Requires the ADMIN role. Combines user account information with full profile data.
+     *
+     * @param userId the ID of the user to retrieve
+     * @return HTTP 200 OK response containing the FullUserDataDTO of the specified
+     *         user
+     */
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(ApiPaths.GET_FULL_USER_DATA_PATH) 
+    @GetMapping(ApiPaths.GET_FULL_USER_DATA_PATH)
     public ResponseEntity<FullUserDataDTO> getFullUserData(@PathVariable String userId) {
         FullUserDataDTO fullUserData = userService.getFullUserData(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(fullUserData);
+    }
+
+    /**
+     * Endpoint for administrators to retrieve a list of users with full profile
+     * data.
+     *
+     * Requires the ADMIN role. Delegates to the service layer to fetch and combine
+     * user account and project profile information.
+     *
+     * @return HTTP 200 OK response containing the list of FullUserDataDTO
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(ApiPaths.GET_USERS_LIST_PATH)
+    public ResponseEntity<List<FullUserDataDTO>> getUsersListFullUserData() {
+        List<FullUserDataDTO> fullUserDataList = userService.getAllUsersFullUserDataDTO();
+
+        return ResponseEntity.ok(fullUserDataList);
     }
 
     /**

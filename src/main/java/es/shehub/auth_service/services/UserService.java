@@ -19,6 +19,7 @@ import es.shehub.auth_service.models.dtos.common.SchoolDTO;
 import es.shehub.auth_service.models.dtos.common.SkillDTO;
 import es.shehub.auth_service.models.dtos.common.TechRoleDTO;
 import es.shehub.auth_service.models.dtos.requests.GoogleUserDTO;
+import es.shehub.auth_service.models.dtos.requests.UpdatePasswordRequest;
 import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateUserRequestDTO;
@@ -311,9 +312,12 @@ public class UserService {
     /**
      * Retrieves the profile data of the currently authenticated user.
      *
-     * This method ensures that a user can only access their own profile information.
-     * It verifies the authenticated user's identity and matches it with the requested userId.
-     * If authorized, the method retrieves user data and combines it with mock project data
+     * This method ensures that a user can only access their own profile
+     * information.
+     * It verifies the authenticated user's identity and matches it with the
+     * requested userId.
+     * If authorized, the method retrieves user data and combines it with mock
+     * project data
      * (to be replaced with a real call to the user-project service).
      *
      * @param userId         the ID of the user whose profile is being requested
@@ -326,9 +330,7 @@ public class UserService {
     public ProfileUserDataDTO getUserProfile(String userId, Authentication authentication) {
         User user = findUserById(userId);
 
-        String authenticatedUsername = authentication.getName();
-        User authenticatedUser = userRepository.findByEmail(authenticatedUsername)
-                .orElseThrow(() -> new ShehubException("Authenticated user not found", HttpStatus.UNAUTHORIZED));
+        User authenticatedUser = getAuthenticatedUser(authentication);
 
         boolean isSelf = authenticatedUser.getId().toString().equals(userId);
 
@@ -354,14 +356,7 @@ public class UserService {
      *                         occurs
      */
     public void deleteUserById(String userId, Authentication authentication) {
-        String authenticatedUsername = authentication.getName();
-        User authenticatedUser = userRepository.findByEmail(authenticatedUsername)
-                .orElseThrow(() -> new ShehubException("Authenticated user not found", HttpStatus.UNAUTHORIZED));
-
-        boolean isAdmin = authenticatedUser.getRole().getName().equalsIgnoreCase("ADMIN");
-        boolean isSelf = authenticatedUser.getId().toString().equals(userId);
-
-        if (!isAdmin && !isSelf) {
+        if (!isAdminOrSameUser(userId, authentication)) {
             throw new ShehubException("You are not authorized to delete this user", HttpStatus.FORBIDDEN);
         }
 
@@ -372,6 +367,31 @@ public class UserService {
             throw new ShehubException("Something went wrong when deleting a user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    /**
+     * Changes the password of the currently authenticated user.
+     *
+     * This method verifies that the current password provided matches the user's
+     * actual password.
+     * If the check passes, it encodes and updates the user's password with the new
+     * one.
+     *
+     * @param request        the object containing the current and new passwords
+     * @param authentication the authentication object representing the currently
+     *                       logged-in user
+     * @throws ShehubException if the current password does not match the stored
+     *                         password
+     */
+    public void changePassword(UpdatePasswordRequest request, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new ShehubException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     // HELPER METHODS
@@ -406,6 +426,68 @@ public class UserService {
     public Role findRoleByName(String roleName) {
         return roleRepository.findByNameIgnoreCase(roleName)
                 .orElseThrow(() -> new ShehubException("Rol no encontrado.", HttpStatus.BAD_REQUEST));
+    }
+
+    /**
+     * Retrieves the authenticated User entity based on the provided Authentication
+     * object.
+     *
+     * Extracts the user's email from the authentication context and queries the
+     * user repository.
+     * Throws an exception if no user is found with the extracted email.
+     *
+     * @param authentication the Authentication object representing the currently
+     *                       authenticated user
+     * @return the User entity corresponding to the authenticated user
+     * @throws ShehubException if the user cannot be found in the repository
+     */
+    public User getAuthenticatedUser(Authentication authentication) {
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ShehubException("Authenticated user not found", HttpStatus.UNAUTHORIZED));
+    }
+
+    /**
+     * Checks if the currently authenticated user matches the provided user ID.
+     *
+     * Retrieves the authenticated user's email from the security context,
+     * fetches the user entity from the repository, and compares its ID
+     * with the given userId.
+     *
+     * @param userId the user ID to compare against the authenticated user
+     * @return true if the authenticated user's ID matches the given userId, false
+     *         otherwise
+     * @throws ShehubException if the authenticated user is not found in the
+     *                         repository
+     */
+    public boolean isSameUser(String userId, Authentication authentication) {
+        User authenticatedUser = getAuthenticatedUser(authentication);
+
+        return authenticatedUser.getId().toString().equals(userId);
+    }
+
+    /**
+     * Checks if the authenticated user has the ADMIN role or matches the provided
+     * user ID.
+     *
+     * Retrieves the authenticated user's email from the given Authentication
+     * object, fetches the corresponding User entity from the repository, and determines
+     * whether the user is an admin or the same user as identified by the given userId.
+     *
+     * @param userId         the user ID to compare against the authenticated user
+     * @param authentication the Authentication object representing the currently
+     *                       authenticated user
+     * @return true if the user is an admin or if the user ID matches the
+     *         authenticated user's ID; false otherwise
+     * @throws ShehubException if the authenticated user cannot be found in the
+     *                         repository
+     */
+    public boolean isAdminOrSameUser(String userId, Authentication authentication) {
+        User authenticatedUser = getAuthenticatedUser(authentication);
+
+        boolean isAdmin = authenticatedUser.getRole().getName().equalsIgnoreCase("ADMIN");
+        boolean isSelf = authenticatedUser.getId().toString().equals(userId);
+        return isAdmin || isSelf;
     }
 
     // TODO: delete this mock object when implemented REST calls to user-project

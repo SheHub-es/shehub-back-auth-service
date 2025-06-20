@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.shehub.auth_service.config.ApiPaths;
 import es.shehub.auth_service.exceptions.ShehubException;
+import es.shehub.auth_service.models.dtos.requests.UpdatePasswordRequest;
 import es.shehub.auth_service.models.dtos.requests.UpdateRoleRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateStatusRequestDTO;
 import es.shehub.auth_service.models.dtos.requests.UpdateUserRequestDTO;
@@ -177,13 +178,38 @@ public class UserController {
      *                         profile
      */
     @PreAuthorize("isAuthenticated()")
-    @GetMapping(ApiPaths.GET_USERS_LIST_PATH)
+    @GetMapping(ApiPaths.GET_USER_PROFILE_PATH)
     public ResponseEntity<ProfileUserDataDTO> getUserProfile(@PathVariable String userId,
             org.springframework.security.core.Authentication authentication) {
 
         ProfileUserDataDTO userProfileData = userService.getUserProfile(userId, authentication);
 
         return ResponseEntity.ok(userProfileData);
+    }
+
+    /**
+     * Endpoint to update the password of the currently authenticated user.
+     *
+     * This method accepts a password update request containing the current and new passwords.
+     * It delegates the password change logic to the service layer, which validates the current password  and updates it securely.
+     *
+     * Only authenticated users can access this endpoint.
+     *
+     * @param request        the request body containing the current and new
+     *                       passwords
+     * @param authentication the authentication object representing the currently
+     *                       logged-in user
+     * @return a 200 OK response with a success message if the password was changed
+     *         successfully
+     */
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping(ApiPaths.UPDATE_USER_PASSWORD_PATH)
+    public ResponseEntity<String> updateUserPassword(@RequestBody UpdatePasswordRequest request,
+            org.springframework.security.core.Authentication authentication) {
+
+        userService.changePassword(request, authentication);
+
+        return ResponseEntity.ok("Password updated successfully");
     }
 
     /**
